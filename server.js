@@ -1,6 +1,7 @@
 const express = require("express");
-const connectDB = require("./db");
 require("dotenv").config();
+const connectDB = require("./db");
+const fs = require("fs");
 const multer = require("multer");
 const path = require("path");
 const StudySource = require("./models/StudySource");
@@ -11,60 +12,72 @@ const PORT = process.env.PORT || 5000;
 // Connect to MongoDB
 connectDB();
 
-// Middleware to handle JSON requests
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Multer storage configuration
+// Set up storage for multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/");  // Set upload destination folder
+    cb(null, "uploads/"); // save files in 'uploads' folder
   },
   filename: (req, file, cb) => {
-    // Generate a unique filename using the timestamp and file extension
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
-});
-
-const upload = multer({ storage: storage });
-
-// Route for uploading study sources
-app.post("/api/upload-source", upload.single("file"), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ message: "No file uploaded" });
-    }
-
-    // Create a new document with metadata of the uploaded file
-    const newStudySource = new StudySource({
-      university: req.body.university,
-      classCode: req.body.classCode,
-      className: req.body.className,
-      materialType: req.body.materialType,
-      uploader: req.body.uploader,
-      fileName: req.file.filename,
-      fileUrl: `/uploads/${req.file.filename}`,
-    });
-
-    // Save the document to MongoDB
-    await newStudySource.save();
-
-    return res.status(200).json({
-      message: "File uploaded successfully",
-      file: newStudySource,
-    });
-  } catch (error) {
-    console.error("Error uploading file:", error);
-    return res.status(500).json({ message: "Error uploading file" });
+    cb(null, Date.now() + path.extname(file.originalname)); // unique filename with extension
   }
 });
 
-// Route to serve uploaded files
-app.use("/uploads", express.static("uploads"));
+// Multer file upload middleware
+const upload = multer({ storage: storage });
+
+// Route to upload study source
+app.post("/upload", upload.single("file"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    // Extracting data from req.body and req.file
+    const { university, classCode, className, fileType, materialType, uploader } = req.body;
+    const fileURL = req.file.path; // path where file is stored on the server
+
+    // Create a new StudySource document with the metadata
+    const studySource = new StudySource({
+      university: university,
+      class: {
+        code: classCode,
+        name: className
+      },
+      fileType: fileType,
+      materialType: materialType,
+      uploader: uploader,
+      fileURL: fileURL
+    });
+
+    // Save to database
+    await studySource.save();
+
+    res.json({ message: "File uploaded successfully", studySource });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error uploading file" });
+  }
+});
+
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+// Endpoint to get the list of files in the 'uploads' folder
+app.get("/files", (req, res) => {
+  const folderPath = path.join(__dirname, "uploads");
+
+  // Read the directory to get file names
+  fs.readdir(folderPath, (err, files) => {
+    if (err) {
+      return res.status(500).json({ error: "Failed to read files" });
+    }
+    res.json({ files });
+  });
+});
 
 // Basic route
 app.get("/", (req, res) => {
-  res.send("API is running...");
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
 // Start server

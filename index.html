@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Select and Download File</title>
+</head>
+<body>
+  <h1>Select a File to Download</h1>
+  
+  <select id="fileDropdown">
+    <option value="">Select a file...</option>
+  </select>
+  
+  <button id="downloadButton" disabled>Download Selected File</button>
+  
+  <script>
+    // Fetch the list of files from the server
+    fetch('/files')
+      .then(response => response.json())
+      .then(data => {
+        const fileDropdown = document.getElementById('fileDropdown');
+        
+        // Populate the dropdown with the file names
+        data.files.forEach(file => {
+          const option = document.createElement('option');
+          option.value = file;
+          option.textContent = file;
+          fileDropdown.appendChild(option);
+        });
+      })
+      .catch(err => console.error('Failed to fetch files:', err));
+
+    // Enable the download button when a file is selected
+    document.getElementById('fileDropdown').addEventListener('change', (e) => {
+      const downloadButton = document.getElementById('downloadButton');
+      downloadButton.disabled = !e.target.value;
+      downloadButton.onclick = function() {
+        if (e.target.value) {
+          window.location.href = `/uploads/${e.target.value}`;
+        }
+      };
+    });
+  </script>
+</body>
+</html>
