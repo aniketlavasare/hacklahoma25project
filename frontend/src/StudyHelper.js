@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { Button, TextField, Box, Typography, CircularProgress, Paper } from "@mui/material";
+import { Button, TextField, Box, Typography, CircularProgress, Paper, MenuItem, Select, FormControl, InputLabel } from "@mui/material";
 
 const StudyHelper = () => {
   const [action, setAction] = useState(""); // To store the selected action
@@ -8,6 +8,7 @@ const StudyHelper = () => {
   const [userQuestion, setUserQuestion] = useState(""); // To store the user's question
   const [response, setResponse] = useState(""); // To store the API response
   const [loading, setLoading] = useState(false); // To show loading state
+  const [selectedModel, setSelectedModel] = useState("gpt-3.5-turbo"); // To store the selected model
 
   // Function to handle button clicks
   const handleActionClick = (actionType) => {
@@ -28,6 +29,7 @@ const StudyHelper = () => {
         action,
         studySource,
         userQuestion: action === "ask" ? userQuestion : undefined, // Only include userQuestion for 'ask' action
+        model: selectedModel, // Pass selected model
       };
 
       // Send request to backend API
@@ -47,6 +49,21 @@ const StudyHelper = () => {
         <Typography variant="h5" sx={styles.title}>
           Study Helper
         </Typography>
+
+        {/* Dropdown for selecting model */}
+        <FormControl fullWidth sx={styles.selectBox}>
+          <InputLabel id="model-select-label">Select Model</InputLabel>
+          <Select
+            labelId="model-select-label"
+            value={selectedModel}
+            onChange={(e) => setSelectedModel(e.target.value)}
+            label="Select Model"
+          >
+            <MenuItem value="gpt-3.5-turbo">GPT-3.5 Turbo</MenuItem>
+            <MenuItem value="gpt-4">GPT-4</MenuItem>
+            <MenuItem value="gemini-2">Gemini 2.0</MenuItem>
+          </Select>
+        </FormControl>
 
         <TextField
           label="Enter study material here..."
@@ -134,6 +151,9 @@ const styles = {
   },
   title: {
     textAlign: "center",
+    marginBottom: "20px",
+  },
+  selectBox: {
     marginBottom: "20px",
   },
   textArea: {
