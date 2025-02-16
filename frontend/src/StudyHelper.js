@@ -4,16 +4,17 @@ import { useLocation } from 'react-router-dom';
 import { Button, TextField, Box, Typography, CircularProgress, Paper, MenuItem, Select, FormControl, InputLabel } from "@mui/material";
 
 const StudyHelper = () => {
-    const location = useLocation(); // Get the location object
-    const { sourceText } = location.state || {}; // Access the state that was passed
-    console.log(sourceText.fileURL); // Log the sourceText to the console
+  const location = useLocation(); // Get the location object
+  const { sourceText } = location.state || {}; // Access the state that was passed
+  console.log(sourceText?.fileURL); // Log the sourceText to the console
+
   const [action, setAction] = useState(""); // To store the selected action
   const [studySource, setStudySource] = useState(""); // To store the study material
   const [userQuestion, setUserQuestion] = useState(""); // To store the user's question
   const [response, setResponse] = useState(""); // To store the API response
   const [loading, setLoading] = useState(false); // To show loading state
   const [selectedModel, setSelectedModel] = useState("gpt-3.5-turbo"); // To store the selected model
-
+  
   // Function to handle button clicks
   const handleActionClick = (actionType) => {
     setAction(actionType);
@@ -34,17 +35,30 @@ const StudyHelper = () => {
         studySource,
         userQuestion: action === "ask" ? userQuestion : undefined, // Only include userQuestion for 'ask' action
         model: selectedModel, // Pass selected model
+        fileURL: sourceText?.fileURL // Pass the fileURL
       };
 
       // Send request to backend API
       const result = await axios.post("http://localhost:5000/process", body);
-      setResponse(result.data.result);
+      const formattedResponse = formatLinks(result.data.result); // Format links in the response
+      setResponse(formattedResponse);
     } catch (error) {
       setResponse("Error processing your request.");
       console.error(error);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Function to format the response to make links clickable
+  const formatLinks = (text) => {
+    // Regular expression to match YouTube URLs
+    const youtubeRegex = /(https?:\/\/(?:www\.)?youtube\.com\/(?:[^\s]+))/g;
+    
+    return text.replace(youtubeRegex, (match) => {
+      // Wrap the match (URL) with anchor tag
+      return `<a href="${match}" target="_blank" rel="noopener noreferrer">${match}</a>`;
+    });
   };
 
   return (
@@ -70,7 +84,7 @@ const StudyHelper = () => {
         </FormControl>
 
         <TextField
-          label="Enter study material here..."
+          label="Enter extra study material..."
           multiline
           rows={4}
           fullWidth
@@ -132,7 +146,10 @@ const StudyHelper = () => {
         {response && (
           <Box sx={styles.responseContainer}>
             <Typography variant="h6">Response:</Typography>
-            <Typography sx={styles.response}>{response}</Typography>
+            <Typography
+              sx={styles.response}
+              dangerouslySetInnerHTML={{ __html: response }} // Render formatted response
+            />
           </Box>
         )}
       </Paper>
