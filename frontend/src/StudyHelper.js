@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { Button, TextField, Box, Typography, CircularProgress, Paper } from "@mui/material";
 
 const StudyHelper = () => {
   const [action, setAction] = useState(""); // To store the selected action
@@ -41,115 +42,136 @@ const StudyHelper = () => {
   };
 
   return (
-    <div style={styles.container}>
-      <h1>Study Helper</h1>
-      <textarea
-        style={styles.textArea}
-        placeholder="Enter study material here..."
-        value={studySource}
-        onChange={(e) => setStudySource(e.target.value)}
-      ></textarea>
+    <Box sx={styles.container}>
+      <Paper sx={styles.paper}>
+        <Typography variant="h5" sx={styles.title}>
+          Study Helper
+        </Typography>
 
-      <div style={styles.buttonsContainer}>
-        <button onClick={() => handleActionClick("summary")} style={styles.button}>
-          Generate Summary
-        </button>
-        <button onClick={() => handleActionClick("quiz")} style={styles.button}>
-          Generate Quiz
-        </button>
-        <button onClick={() => handleActionClick("youtube")} style={styles.button}>
-          Recommend YouTube Videos
-        </button>
-        <button onClick={() => handleActionClick("ask")} style={styles.button}>
-          Ask a Question
-        </button>
-      </div>
+        <TextField
+          label="Enter study material here..."
+          multiline
+          rows={4}
+          fullWidth
+          value={studySource}
+          onChange={(e) => setStudySource(e.target.value)}
+          sx={styles.textArea}
+        />
 
-      {action === "ask" && (
-        <div style={styles.inputContainer}>
-          <input
-            style={styles.inputBox}
-            type="text"
-            placeholder="Ask your question here..."
+        <Box sx={styles.buttonGroup}>
+          <Button
+            variant={action === "summary" ? "contained" : "outlined"}
+            onClick={() => handleActionClick("summary")}
+            sx={styles.button}
+          >
+            Generate Summary
+          </Button>
+          <Button
+            variant={action === "quiz" ? "contained" : "outlined"}
+            onClick={() => handleActionClick("quiz")}
+            sx={styles.button}
+          >
+            Generate Quiz
+          </Button>
+          <Button
+            variant={action === "youtube" ? "contained" : "outlined"}
+            onClick={() => handleActionClick("youtube")}
+            sx={styles.button}
+          >
+            Recommend YouTube Videos
+          </Button>
+          <Button
+            variant={action === "ask" ? "contained" : "outlined"}
+            onClick={() => handleActionClick("ask")}
+            sx={styles.button}
+          >
+            Ask a Question
+          </Button>
+        </Box>
+
+        {action === "ask" && (
+          <TextField
+            label="Ask your question here..."
+            fullWidth
             value={userQuestion}
             onChange={(e) => setUserQuestion(e.target.value)}
+            sx={styles.inputBox}
           />
-        </div>
-      )}
+        )}
 
-      <button onClick={handleRequest} style={styles.submitButton} disabled={loading}>
-        {loading ? "Processing..." : "Submit"}
-      </button>
+        <Button
+          variant="contained"
+          onClick={handleRequest}
+          sx={styles.submitButton}
+          disabled={loading}
+        >
+          {loading ? <CircularProgress size={24} color="inherit" /> : "Submit"}
+        </Button>
 
-      <div style={styles.responseContainer}>
-        <h3>Response:</h3>
-        <div style={styles.response}>{response}</div>
-      </div>
-    </div>
+        {response && (
+          <Box sx={styles.responseContainer}>
+            <Typography variant="h6">Response:</Typography>
+            <Typography sx={styles.response}>{response}</Typography>
+          </Box>
+        )}
+      </Paper>
+    </Box>
   );
 };
 
 const styles = {
   container: {
     display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
+    justifyContent: "center",
     padding: "20px",
     fontFamily: "Arial, sans-serif",
   },
-  textArea: {
-    width: "80%",
-    height: "150px",
-    marginBottom: "20px",
-    padding: "10px",
-    fontSize: "16px",
-    borderRadius: "5px",
-    border: "1px solid #ccc",
+  paper: {
+    padding: "20px",
+    width: "100%",
+    maxWidth: "600px",
+    boxShadow: 3,
   },
-  buttonsContainer: {
+  title: {
+    textAlign: "center",
+    marginBottom: "20px",
+  },
+  textArea: {
+    marginBottom: "20px",
+    fontSize: "16px",
+  },
+  buttonGroup: {
     display: "flex",
+    flexDirection: "column",
     gap: "10px",
     marginBottom: "20px",
   },
   button: {
-    padding: "10px 20px",
     fontSize: "16px",
-    cursor: "pointer",
+    padding: "10px",
+    width: "100%",
     borderRadius: "5px",
-    border: "1px solid #ccc",
-    backgroundColor: "#4CAF50",
-    color: "white",
-  },
-  inputContainer: {
-    marginBottom: "20px",
   },
   inputBox: {
-    padding: "10px",
+    marginBottom: "20px",
     fontSize: "16px",
-    width: "300px",
-    borderRadius: "5px",
-    border: "1px solid #ccc",
   },
   submitButton: {
-    padding: "10px 20px",
     fontSize: "16px",
-    cursor: "pointer",
+    padding: "10px 20px",
+    width: "100%",
     borderRadius: "5px",
-    border: "1px solid #ccc",
-    backgroundColor: "#2196F3",
-    color: "white",
   },
   responseContainer: {
     marginTop: "20px",
-    width: "80%",
     padding: "10px",
     backgroundColor: "#f4f4f4",
     borderRadius: "5px",
-    border: "1px solid #ccc",
   },
   response: {
     whiteSpace: "pre-wrap",
     fontSize: "16px",
+    wordWrap: "break-word",
   },
 };
 
