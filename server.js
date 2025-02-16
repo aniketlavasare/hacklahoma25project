@@ -7,6 +7,7 @@ const path = require("path");
 const StudySource = require("./models/StudySource");
 const cors = require("cors");
 const userRoutes = require("./routes/userRoutes");
+const { processStudyMaterial } = require("./openai");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -154,6 +155,16 @@ app.get("/files", (req, res) => {
     }
     res.json({ files });
   });
+});
+
+app.post("/process", async (req, res) => {
+  try {
+    const { action, studySource, userQuestion } = req.body;
+    const result = await processStudyMaterial(action, studySource, userQuestion);
+    res.json({ result });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // User routes
