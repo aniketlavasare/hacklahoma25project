@@ -1,21 +1,14 @@
-import { OpenAI } from "langchain/llms/openai";
-import dotenv from "dotenv";
+const { OpenAI } = require("openai");
+const dotenv = require("dotenv");
 
 dotenv.config();
 
 const openaiApiKey = process.env.OPENAI_API_KEY;
-const llm = new OpenAI({
-  openAIApiKey: openaiApiKey,
-  modelName: "gpt-3.5-turbo",
+
+const openai = new OpenAI({
+  apiKey: openaiApiKey,
 });
 
-/**
- * Process study material or handle user questions
- * @param {string} action - "quiz", "youtube", "summary", or "ask"
- * @param {string} studySource - The text content of the study material (if applicable)
- * @param {string} userQuestion - The user's question (only for "ask" action)
- * @returns {Promise<string>} - The generated response from the LLM
- */
 const processStudyMaterial = async (action, studySource = "", userQuestion = "") => {
   let prompt = "";
 
@@ -37,13 +30,15 @@ const processStudyMaterial = async (action, studySource = "", userQuestion = "")
   }
 
   try {
-    const response = await llm.call(prompt);
-    return response.text;
+    const response = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [{ role: "user", content: prompt }],
+    });
+    return response.choices[0].message.content;
   } catch (error) {
     console.error("Error processing request:", error);
     throw new Error("Error generating response.");
   }
 };
 
-// Properly export the function
-export { processStudyMaterial };
+module.exports = { processStudyMaterial };
