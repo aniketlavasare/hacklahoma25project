@@ -1,16 +1,29 @@
-import React from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import FileUpload from "./FileUpload";
+// src/App.js
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { AppBar, Toolbar, Typography, Button, Container, CssBaseline } from '@mui/material';
+import UploadForm from './UploadForm';
+import BrowseSources from './BrowseSources';
 
-function App() {
+const App = () => {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<h1>Welcome to the Study Sources App</h1>} />
-        <Route path="/upload" element={<FileUpload />} />
-      </Routes>
+      <CssBaseline />
+      <AppBar position="sticky" sx={{ mb: 4 }}>
+        <Toolbar>
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>Study Source Repository</Typography>
+          <Button color="inherit" sx={{ mr: 2 }} href="/">Upload</Button>
+          <Button color="inherit" href="/browse">Browse</Button>
+        </Toolbar>
+      </AppBar>
+      <Container component="main">
+        <Routes>
+          <Route path="/" element={<UploadForm />} />
+          <Route path="/browse" element={<BrowseSources />} />
+        </Routes>
+      </Container>
     </Router>
   );
-}
+};
 
 export default App;
