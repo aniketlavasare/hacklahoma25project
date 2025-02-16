@@ -1,8 +1,12 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useLocation } from 'react-router-dom';
 import { Button, TextField, Box, Typography, CircularProgress, Paper, MenuItem, Select, FormControl, InputLabel } from "@mui/material";
 
 const StudyHelper = () => {
+    const location = useLocation(); // Get the location object
+    const { sourceText } = location.state || {}; // Access the state that was passed
+    console.log(sourceText.fileURL); // Log the sourceText to the console
   const [action, setAction] = useState(""); // To store the selected action
   const [studySource, setStudySource] = useState(""); // To store the study material
   const [userQuestion, setUserQuestion] = useState(""); // To store the user's question

@@ -108,9 +108,13 @@ const BrowseSources = () => {
     }
   };
 
-  // Redirect button click handler
-  const handleRedirectToStudyHelper = () => {
-    navigate("/study-helper"); // Redirects to the StudyHelper component
+  // Redirect button click handler with source info
+  const handleRedirectToStudyHelper = (source) => {
+    navigate("/study-plan", {
+      state: {
+        sourceText: source, // Passing the selected source to StudyHelper
+      },
+    });
   };
 
   return (
@@ -217,40 +221,28 @@ const BrowseSources = () => {
                     primary={source.fileURL}
                     secondary={`Uploader: ${source.uploader}`}
                   />
+                  {/* Button to study individual source */}
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => handleRedirectToStudyHelper(source)} // Pass the source here
+                    sx={{ ml: 2 }}
+                  >
+                    Study this source
+                  </Button>
                 </ListItem>
               ))}
             </List>
 
-            {/* Button to redirect to StudyHelper */}
+            {/* Button to study all sources */}
             <Button
               variant="contained"
               color="secondary"
               fullWidth
               sx={{ mt: 3 }}
-              onClick={handleRedirectToStudyHelper}
+              onClick={() => handleRedirectToStudyHelper(sources)} // Pass all sources here
             >
-              Go to Study Helper
-            </Button>
-
-            {/* Additional buttons to redirect to StudyHelper */}
-            <Button
-              variant="contained"
-              color="secondary"
-              fullWidth
-              sx={{ mt: 2 }}
-              onClick={handleRedirectToStudyHelper}
-            >
-              Go to Study Helper (Alternate)
-            </Button>
-
-            <Button
-              variant="contained"
-              color="secondary"
-              fullWidth
-              sx={{ mt: 2 }}
-              onClick={handleRedirectToStudyHelper}
-            >
-              Go to Study Helper (Another Option)
+              Study all sources
             </Button>
           </Box>
         )}
