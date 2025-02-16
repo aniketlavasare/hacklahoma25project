@@ -14,6 +14,7 @@ import {
   ListItem,
   ListItemText,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom"; // Import useNavigate for redirecting
 
 const BrowseSources = () => {
   const [university, setUniversity] = useState("");
@@ -24,21 +25,18 @@ const BrowseSources = () => {
   const [classCodes, setClassCodes] = useState([]);
   const [classNames, setClassNames] = useState([]);
   const [status, setStatus] = useState("");
+  const navigate = useNavigate(); // Initialize the navigate function
 
   useEffect(() => {
     const fetchUniversities = async () => {
       try {
-        console.log("Fetching universities...");
         const response = await axios.get("http://localhost:5000/universities");
-        console.log("Universities response:", response.data);
         if (Array.isArray(response.data)) {
           setUniversities(response.data);
         } else {
-          console.error("Universities data is not an array:", response.data);
           setStatus("Error: Invalid universities data format");
         }
       } catch (error) {
-        console.error("Error fetching universities:", error.response || error);
         setStatus(`Error fetching universities: ${error.message}`);
       }
     };
@@ -49,19 +47,15 @@ const BrowseSources = () => {
     if (university) {
       const fetchClassCodes = async () => {
         try {
-          console.log("Fetching class codes for university:", university);
           const response = await axios.get("http://localhost:5000/classcodes", {
             params: { university: encodeURIComponent(university) },
           });
-          console.log("Class codes response:", response.data);
           if (Array.isArray(response.data)) {
             setClassCodes(response.data);
           } else {
-            console.error("Class codes data is not an array:", response.data);
             setStatus("Error: Invalid class codes data format");
           }
         } catch (error) {
-          console.error("Error fetching class codes:", error.response || error);
           setStatus(`Error fetching class codes: ${error.message}`);
         }
       };
@@ -73,22 +67,18 @@ const BrowseSources = () => {
     if (university && classCode) {
       const fetchClassNames = async () => {
         try {
-          console.log("Fetching class names for:", { university, classCode });
           const response = await axios.get("http://localhost:5000/classnames", {
-            params: { 
-              university: encodeURIComponent(university), 
-              classCode: encodeURIComponent(classCode) 
+            params: {
+              university: encodeURIComponent(university),
+              classCode: encodeURIComponent(classCode),
             },
           });
-          console.log("Class names response:", response.data);
           if (Array.isArray(response.data)) {
             setClassNames(response.data);
           } else {
-            console.error("Class names data is not an array:", response.data);
             setStatus("Error: Invalid class names data format");
           }
         } catch (error) {
-          console.error("Error fetching class names:", error.response || error);
           setStatus(`Error fetching class names: ${error.message}`);
         }
       };
@@ -98,8 +88,6 @@ const BrowseSources = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submitting form with values:", { university, classCode, className });
-
     if (!university || !classCode || !className) {
       setStatus("Please fill out all fields.");
       return;
@@ -107,30 +95,23 @@ const BrowseSources = () => {
 
     try {
       const response = await axios.get("http://localhost:5000/sources", {
-        params: { 
-          university: encodeURIComponent(university), 
-          classCode: encodeURIComponent(classCode), 
-          className: encodeURIComponent(className) 
+        params: {
+          university: encodeURIComponent(university),
+          classCode: encodeURIComponent(classCode),
+          className: encodeURIComponent(className),
         },
       });
-      console.log("Sources response:", response.data);
       setSources(response.data.studySources);
       setStatus("");
     } catch (error) {
-      console.error("Error fetching sources:", error.response || error);
       setStatus(`Error fetching study sources: ${error.message}`);
     }
   };
 
-  // Debug renders
-  console.log("Current state:", {
-    universities,
-    classCodes,
-    classNames,
-    selectedUniversity: university,
-    selectedClassCode: classCode,
-    selectedClassName: className
-  });
+  // Redirect button click handler
+  const handleRedirectToStudyHelper = () => {
+    navigate("/study-helper"); // Redirects to the StudyHelper component
+  };
 
   return (
     <Container component="main" maxWidth="md" sx={{ mt: 8 }}>
@@ -156,10 +137,7 @@ const BrowseSources = () => {
                 <Select
                   label="University"
                   value={university}
-                  onChange={(e) => {
-                    console.log("University selected:", e.target.value);
-                    setUniversity(e.target.value);
-                  }}
+                  onChange={(e) => setUniversity(e.target.value)}
                   required
                 >
                   {universities?.map((uni) => (
@@ -177,10 +155,7 @@ const BrowseSources = () => {
                 <Select
                   label="Class Code"
                   value={classCode}
-                  onChange={(e) => {
-                    console.log("Class code selected:", e.target.value);
-                    setClassCode(e.target.value);
-                  }}
+                  onChange={(e) => setClassCode(e.target.value)}
                   required
                   disabled={!classCodes.length}
                 >
@@ -199,10 +174,7 @@ const BrowseSources = () => {
                 <Select
                   label="Class Name"
                   value={className}
-                  onChange={(e) => {
-                    console.log("Class name selected:", e.target.value);
-                    setClassName(e.target.value);
-                  }}
+                  onChange={(e) => setClassName(e.target.value)}
                   required
                   disabled={!classNames.length}
                 >
@@ -248,6 +220,38 @@ const BrowseSources = () => {
                 </ListItem>
               ))}
             </List>
+
+            {/* Button to redirect to StudyHelper */}
+            <Button
+              variant="contained"
+              color="secondary"
+              fullWidth
+              sx={{ mt: 3 }}
+              onClick={handleRedirectToStudyHelper}
+            >
+              Go to Study Helper
+            </Button>
+
+            {/* Additional buttons to redirect to StudyHelper */}
+            <Button
+              variant="contained"
+              color="secondary"
+              fullWidth
+              sx={{ mt: 2 }}
+              onClick={handleRedirectToStudyHelper}
+            >
+              Go to Study Helper (Alternate)
+            </Button>
+
+            <Button
+              variant="contained"
+              color="secondary"
+              fullWidth
+              sx={{ mt: 2 }}
+              onClick={handleRedirectToStudyHelper}
+            >
+              Go to Study Helper (Another Option)
+            </Button>
           </Box>
         )}
       </Box>
